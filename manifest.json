@@ -6,6 +6,7 @@
       "id": "flixindia",
       "name": "FlixIndia",
       "filename": "providers/flixindia.js",
+      "logo": "https://m.flixindia.xyz/onepieceskull.png",
       "supportedTypes": [
         "movie",
         "tv"
