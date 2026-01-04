@@ -2,7 +2,7 @@ import { search } from './search.js';
 import { resolveHubCloud } from './hubcloud.js';
 import { fetchJson } from './http.js';
 
-const TMDB_API_KEY = '47b0f8e9-a3ff-4975-8697-d8901250265b'
+const TMDB_API_KEY = '919605fd567bbffcf76492a03eb4d527';
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
 /* -----------------------------
@@ -11,6 +11,11 @@ const TMDB_BASE = 'https://api.themoviedb.org/3';
 
 function pad2(num) {
   return String(num).padStart(2, '0');
+}
+
+// Check if key is a long V4 Bearer token (JWT) or a short V3 key
+function isV4Key(key) {
+  return key && key.length > 40;
 }
 
 async function getTmdbTitle(tmdbId, mediaType) {
@@ -26,7 +31,8 @@ async function getTmdbTitle(tmdbId, mediaType) {
       return null;
     }
 
-    const url = `${TMDB_BASE}${endpoint}`;
+    // Initialize URL with base
+    let url = `${TMDB_BASE}${endpoint}`;
 
     const options = {
       method: 'GET',
@@ -36,8 +42,8 @@ async function getTmdbTitle(tmdbId, mediaType) {
     if (isV4Key(TMDB_API_KEY)) {
       options.headers.Authorization = `Bearer ${TMDB_API_KEY}`;
     } else {
-      // v3 key
-      endpoint += `?api_key=${TMDB_API_KEY}`;
+      // v3 key: Append to the URL correctly
+      url += `?api_key=${TMDB_API_KEY}`;
     }
 
     const data = await fetchJson(url, options);
@@ -46,13 +52,14 @@ async function getTmdbTitle(tmdbId, mediaType) {
     if (mediaType === 'tv') return data?.name || null;
 
     return null;
-  } catch {
+  } catch (error) {
+    console.error(`[TMDB] Error: ${error.message}`);
     return null;
   }
 }
 
 /* -----------------------------
- * DOCUMENTATION-REQUIRED API
+ * Main Entry
  * ----------------------------- */
 
 async function getStreams(tmdbId, mediaType, season, episode) {
@@ -61,7 +68,10 @@ async function getStreams(tmdbId, mediaType, season, episode) {
      * 1. Resolve TMDB title
      * ------------------------- */
     const baseTitle = await getTmdbTitle(tmdbId, mediaType);
-    if (!baseTitle) return [];
+    if (!baseTitle) {
+      console.log('[FlixIndia] TMDB title not found');
+      return [];
+    }
 
     /* -------------------------
      * 2. Build search query
@@ -98,7 +108,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
 
           for (const stream of resolved) {
             streams.push({
-              name: `flixindia-${stream.source}`,
+              name: `FlixIndia`, // Consistent naming
               title: stream.title,
               url: stream.url,
               quality: stream.quality || 'unknown',
@@ -106,19 +116,16 @@ async function getStreams(tmdbId, mediaType, season, episode) {
             });
           }
         }
-      } catch {
-        // Skip failing result, continue
+      } catch (err) {
+        console.log(`[FlixIndia] Error resolving ${item.url}: ${err.message}`);
       }
     }
 
     return streams;
-  } catch {
+  } catch (err) {
+    console.error(`[FlixIndia] Critical Error: ${err.message}`);
     return [];
   }
 }
-
-/* -----------------------------
- * REQUIRED EXPORT
- * ----------------------------- */
 
 module.exports = { getStreams };

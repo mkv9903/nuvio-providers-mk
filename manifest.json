@@ -24,13 +24,15 @@
     "supportsExternalPlayer": true
   },
   {
-    "id": "testprovider",
-    "name": "TestProvider",
-    "filename": "providers/testprovider.js",
+    "id": "flixindia",
+    "name": "FlixIndia",
+    "filename": "providers/flixindia.js",
     "supportedTypes": [
       "movie",
       "tv"
     ],
-    "enabled": true
+    "enabled": true,
+    "version": "1.0.0",
+    "description": "Streaming provider for FlixIndia"
   }
 ]

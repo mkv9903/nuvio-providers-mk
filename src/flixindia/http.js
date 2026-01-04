@@ -76,6 +76,9 @@ export async function fetchText(url, options = {}) {
  * POST JSON with retry + cookies
  */
 export async function fetchJson(url, options = {}) {
+  // Determine method for logging (default to GET if undefined)
+  const method = (options.method || 'GET').toUpperCase();
+  
   return requestWithRetry(async () => {
     const res = await fetch(url, {
       ...options,
@@ -93,5 +96,5 @@ export async function fetchJson(url, options = {}) {
     }
 
     return await res.json();
-  }, `POST ${url}`);
+  }, `${method} ${url}`); // <--- Fixed Label
 }
