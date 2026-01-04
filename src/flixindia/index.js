@@ -99,7 +99,7 @@ async function getStreams(tmdbId, mediaType, season, episode) {
 
           // Map the results, INCLUDING the new size field
           return resolved.map(stream => ({
-            name: 'FlixIndia',
+            name: stream.name,
             title: stream.title,
             url: stream.url,
             quality: stream.quality || 'unknown',

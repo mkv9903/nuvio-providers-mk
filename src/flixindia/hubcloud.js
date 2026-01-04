@@ -64,7 +64,7 @@ export async function resolveHubCloud(entryUrl, meta) {
     console.log('[HUBCLOUD] ✅ FSL link found:', fslUrl);
 
     streams.push({
-      name: 'FlixIndia',
+      name: 'Flixindia - hubcloud - FSL',
       title: meta.title,
       url: fslUrl,
       quality: meta.quality,
@@ -101,7 +101,7 @@ export async function resolveHubCloud(entryUrl, meta) {
       const resolved = resolvePixelDrain(url);
       if (resolved) {
         streams.push({
-          name: 'FlixIndia',
+          name: 'Flixindia - hubcloud - PixelDrain',
           title: meta.title,
           url: resolved,
           quality: meta.quality,

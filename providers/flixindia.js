@@ -1,6 +1,6 @@
 /**
  * flixindia - Built from src/flixindia/
- * Generated: 2026-01-04T14:00:51.371Z
+ * Generated: 2026-01-04T14:08:03.329Z
  */
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -321,7 +321,7 @@ function resolveHubCloud(entryUrl, meta) {
     if (fslUrl) {
       console.log("[HUBCLOUD] \u2705 FSL link found:", fslUrl);
       streams.push({
-        name: "FlixIndia",
+        name: "Flixindia - hubcloud - FSL",
         title: meta.title,
         url: fslUrl,
         quality: meta.quality,
@@ -348,7 +348,7 @@ function resolveHubCloud(entryUrl, meta) {
         const resolved = resolvePixelDrain(url);
         if (resolved) {
           streams.push({
-            name: "FlixIndia",
+            name: "Flixindia - hubcloud - PixelDrain",
             title: meta.title,
             url: resolved,
             quality: meta.quality,
@@ -466,7 +466,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
               quality: item.quality
             });
             return resolved.map((stream) => ({
-              name: "FlixIndia",
+              name: stream.name,
               title: stream.title,
               url: stream.url,
               quality: stream.quality || "unknown",
