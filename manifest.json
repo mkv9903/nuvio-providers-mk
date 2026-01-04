@@ -11,6 +11,9 @@
         "tv"
       ],
       "enabled": true,
+      "contentLanguage": [
+        "en"
+      ],
       "formats": [
         "mkv"
       ],
