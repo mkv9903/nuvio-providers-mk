@@ -11,7 +11,7 @@ A collection of streaming providers for the Nuvio app. Providers are JavaScript 
 1. Open **Nuvio** > **Settings** > **Plugins**
 2. Add this repository URL:
    ```
-   https://raw.githubusercontent.com/tapframe/nuvio-providers/refs/heads/main
+   https://raw.githubusercontent.com/mkv9903/nuvio-providers-mk/refs/heads/main
    ```
 3. Refresh and enable the providers you want
 
@@ -51,28 +51,30 @@ There are two ways to create providers:
 For simple providers, you can create a single JavaScript file directly in the `providers/` directory.
 
 **Important:** The app's JavaScript engine (Hermes) has limitations with `async/await` in dynamic code.
+
 - **Recommended**: Use Promise chains (`.then()`).
 - **Alternative**: Use `async/await` and run the transpiler command (see below).
 
 **Example (Promise Chains):**
+
 ```javascript
 // providers/myprovider.js
 
 function getStreams(tmdbId, mediaType, season, episode) {
   console.log(`[MyProvider] Fetching ${mediaType} ${tmdbId}`);
-  
+
   return fetch(`https://api.example.com/streams/${tmdbId}`)
-    .then(response => response.json())
-    .then(data => {
-      return data.streams.map(s => ({
+    .then((response) => response.json())
+    .then((data) => {
+      return data.streams.map((s) => ({
         name: "MyProvider",
         title: s.title,
         url: s.url,
-        quality: s.quality
+        quality: s.quality,
       }));
     })
-    .catch(error => {
-      console.error('[MyProvider] Error:', error.message);
+    .catch((error) => {
+      console.error("[MyProvider] Error:", error.message);
       return [];
     });
 }
@@ -81,6 +83,7 @@ module.exports = { getStreams };
 ```
 
 To register the provider, add it to `manifest.json`:
+
 ```json
 {
   "id": "myprovider",
@@ -96,14 +99,16 @@ To register the provider, add it to `manifest.json`:
 For complex providers, use the `src/` directory. This allows you to split code into multiple files. The build script automatically handles bundling and `async/await` transpilation.
 
 1. **Create source folder:**
+
    ```bash
    mkdir -p src/myprovider
    ```
 
 2. **Create entry point** (`src/myprovider/index.js`):
+
    ```javascript
-   import { fetchPage } from './http.js';
-   import { extractStreams } from './extractor.js';
+   import { fetchPage } from "./http.js";
+   import { extractStreams } from "./extractor.js";
 
    // async/await is fully supported here
    async function getStreams(tmdbId, mediaType, season, episode) {
@@ -126,6 +131,7 @@ This generates `providers/myprovider.js`.
 ## Building
 
 ### Build Source Providers
+
 Bundles files from `src/<provider>/` into `providers/<provider>.js`.
 
 ```bash
@@ -140,6 +146,7 @@ node build.js
 ```
 
 ### Transpile Single-File Providers
+
 If you wrote a single-file provider using `async/await`, you must transpile it for compatibility.
 
 ```bash
@@ -151,7 +158,9 @@ node build.js --transpile
 ```
 
 ### Watch Mode
+
 Automatically rebuilds when files change.
+
 ```bash
 npm run build:watch
 ```
@@ -164,18 +173,19 @@ Create a test script to identify issues before loading into the app.
 
 ```javascript
 // test-myprovider.js
-const { getStreams } = require('./providers/myprovider.js');
+const { getStreams } = require("./providers/myprovider.js");
 
 async function test() {
-  console.log('Testing...');
-  const streams = await getStreams('872585', 'movie'); // Oppenheimer ID
-  console.log('Streams found:', streams.length);
+  console.log("Testing...");
+  const streams = await getStreams("872585", "movie"); // Oppenheimer ID
+  console.log("Streams found:", streams.length);
 }
 
 test();
 ```
 
 Run with Node.js:
+
 ```bash
 node test-myprovider.js
 ```
@@ -206,11 +216,11 @@ Providers must return an array of stream objects:
 
 Providers have access to these modules via `require()`:
 
-| Module | Usage |
-|--------|-------|
-| `cheerio-without-node-native` | HTML parsing |
-| `crypto-js` | Encryption/decryption |
-| `axios` | HTTP requests |
+| Module                        | Usage                 |
+| ----------------------------- | --------------------- |
+| `cheerio-without-node-native` | HTML parsing          |
+| `crypto-js`                   | Encryption/decryption |
+| `axios`                       | HTTP requests         |
 
 Native `fetch` and `console` are also available globally.
 

@@ -1,29 +1,5 @@
 [
   {
-    "id": "template-provider",
-    "name": "Template Provider",
-    "description": "A starter template for creating Nuvio providers.",
-    "version": "1.0.0",
-    "author": "Your Name",
-    "supportedTypes": [
-      "movie",
-      "tv"
-    ],
-    "filename": "providers/template.js",
-    "enabled": false,
-    "logo": "",
-    "contentLanguage": [
-      "en"
-    ],
-    "formats": [
-      "mp4",
-      "mkv"
-    ],
-    "limited": false,
-    "disabledPlatforms": [],
-    "supportsExternalPlayer": true
-  },
-  {
     "id": "flixindia",
     "name": "FlixIndia",
     "filename": "providers/flixindia.js",
@@ -32,7 +8,12 @@
       "tv"
     ],
     "enabled": true,
+    "formats": [
+      "mkv"
+    ],
     "version": "1.0.0",
+    "disabledPlatforms": [],
+    "supportsExternalPlayer": true,
     "description": "Streaming provider for FlixIndia"
   }
 ]
