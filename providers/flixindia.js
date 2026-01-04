@@ -1,6 +1,6 @@
 /**
  * flixindia - Built from src/flixindia/
- * Generated: 2026-01-04T08:54:15.234Z
+ * Generated: 2026-01-04T12:50:06.823Z
  */
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -403,10 +403,7 @@ function getTmdbTitle(tmdbId, mediaType) {
         return null;
       }
       let url = `${TMDB_BASE}${endpoint}`;
-      const options = {
-        method: "GET",
-        headers: {}
-      };
+      const options = { method: "GET", headers: {} };
       if (isV4Key(TMDB_API_KEY)) {
         options.headers.Authorization = `Bearer ${TMDB_API_KEY}`;
       } else {
@@ -445,29 +442,29 @@ function getStreams(tmdbId, mediaType, season, episode) {
       const results = yield search(query);
       if (!Array.isArray(results))
         return [];
-      const streams = [];
-      for (const item of results) {
+      const limitedResults = results.slice(0, 5);
+      const promises = limitedResults.map((item) => __async(this, null, function* () {
         try {
           if (item.host === "hubcloud") {
             const resolved = yield resolveHubCloud(item.url, {
               title: item.title,
               quality: item.quality
             });
-            for (const stream of resolved) {
-              streams.push({
-                name: `FlixIndia`,
-                // Consistent naming
-                title: stream.title,
-                url: stream.url,
-                quality: stream.quality || "unknown",
-                headers: {}
-              });
-            }
+            return resolved.map((stream) => ({
+              name: "FlixIndia",
+              title: stream.title,
+              url: stream.url,
+              quality: stream.quality || "unknown",
+              headers: {}
+            }));
           }
         } catch (err) {
           console.log(`[FlixIndia] Error resolving ${item.url}: ${err.message}`);
         }
-      }
+        return [];
+      }));
+      const resultsArrays = yield Promise.all(promises);
+      const streams = resultsArrays.flat();
       return streams;
     } catch (err) {
       console.error(`[FlixIndia] Critical Error: ${err.message}`);
