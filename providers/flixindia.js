@@ -1,6 +1,6 @@
 /**
  * flixindia - Built from src/flixindia/
- * Generated: 2026-01-04T14:08:03.329Z
+ * Generated: 2026-01-04T14:14:51.476Z
  */
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -300,7 +300,7 @@ function resolveHubCloud(entryUrl, meta) {
     const $entry = import_cheerio_without_node_native.default.load(entryHtml);
     let fileSize = null;
     try {
-      const sizeText = $entry("i#size").text().trim();
+      const sizeText = $entry("li").filter((_, el) => $entry(el).text().includes("File Size")).find("i").text().trim();
       if (sizeText) {
         fileSize = sizeText;
         console.log(`[HUBCLOUD] \u{1F4E6} File Size: ${fileSize}`);

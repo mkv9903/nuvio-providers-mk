@@ -29,8 +29,16 @@ export async function resolveHubCloud(entryUrl, meta) {
    * ---------------------------------- */
   let fileSize = null;
   try {
-    // Looks for <i id="size">11.12 GB</i>
-    const sizeText = $entry('i#size').text().trim();
+    // OLD WAY (Buggy): $entry('i#size').text()
+    // CAUSE: The site uses id="size" for both File Size and Date.
+    
+    // NEW WAY: Find the specific line containing "File Size"
+    const sizeText = $entry('li')
+      .filter((_, el) => $entry(el).text().includes('File Size'))
+      .find('i')
+      .text()
+      .trim();
+
     if (sizeText) {
       fileSize = sizeText;
       console.log(`[HUBCLOUD] 📦 File Size: ${fileSize}`);
