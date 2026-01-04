@@ -1,19 +1,23 @@
-[
-  {
-    "id": "flixindia",
-    "name": "FlixIndia",
-    "filename": "providers/flixindia.js",
-    "supportedTypes": [
-      "movie",
-      "tv"
-    ],
-    "enabled": true,
-    "formats": [
-      "mkv"
-    ],
-    "version": "1.0.0",
-    "disabledPlatforms": [],
-    "supportsExternalPlayer": true,
-    "description": "Streaming provider for FlixIndia"
-  }
-]
+{
+  "name": "vmk Repo",
+  "version": "1.0.0",
+  "scrapers": [
+    {
+      "id": "flixindia",
+      "name": "FlixIndia",
+      "filename": "providers/flixindia.js",
+      "supportedTypes": [
+        "movie",
+        "tv"
+      ],
+      "enabled": true,
+      "formats": [
+        "mkv"
+      ],
+      "version": "1.0.0",
+      "disabledPlatforms": [],
+      "supportsExternalPlayer": true,
+      "description": "Streaming provider for FlixIndia"
+    }
+  ]
+}
