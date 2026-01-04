@@ -1,6 +1,6 @@
 /**
  * flixindia - Built from src/flixindia/
- * Generated: 2026-01-04T12:50:06.823Z
+ * Generated: 2026-01-04T14:00:51.371Z
  */
 var __create = Object.create;
 var __defProp = Object.defineProperty;
@@ -298,6 +298,16 @@ function resolveHubCloud(entryUrl, meta) {
     const entryHtml = yield fetchText(entryUrl);
     console.log("[HUBCLOUD] Entry HTML length:", entryHtml.length);
     const $entry = import_cheerio_without_node_native.default.load(entryHtml);
+    let fileSize = null;
+    try {
+      const sizeText = $entry("i#size").text().trim();
+      if (sizeText) {
+        fileSize = sizeText;
+        console.log(`[HUBCLOUD] \u{1F4E6} File Size: ${fileSize}`);
+      }
+    } catch (err) {
+      console.log("[HUBCLOUD] \u26A0\uFE0F Could not extract size:", err.message);
+    }
     const generatorUrl = $entry("a#download").attr("href");
     if (!generatorUrl) {
       console.log("[HUBCLOUD] \u274C Generate link not found");
@@ -315,6 +325,8 @@ function resolveHubCloud(entryUrl, meta) {
         title: meta.title,
         url: fslUrl,
         quality: meta.quality,
+        size: fileSize,
+        // <--- Added Size
         source: "hubcloud-fsl"
       });
     } else {
@@ -340,6 +352,8 @@ function resolveHubCloud(entryUrl, meta) {
             title: meta.title,
             url: resolved,
             quality: meta.quality,
+            size: fileSize,
+            // <--- Added Size
             source: "hubcloud-pixeldrain"
           });
         }
@@ -392,16 +406,17 @@ function isV4Key(key) {
 function getTmdbTitle(tmdbId, mediaType) {
   return __async(this, null, function* () {
     try {
-      if (!TMDB_API_KEY)
-        return null;
-      let endpoint;
-      if (mediaType === "movie") {
-        endpoint = `/movie/${tmdbId}`;
-      } else if (mediaType === "tv") {
-        endpoint = `/tv/${tmdbId}`;
-      } else {
+      if (!TMDB_API_KEY || TMDB_API_KEY === "YOUR_TMDB_API_KEY_HERE") {
+        console.error("[FlixIndia] \u274C Missing TMDB API Key");
         return null;
       }
+      let endpoint;
+      if (mediaType === "movie")
+        endpoint = `/movie/${tmdbId}`;
+      else if (mediaType === "tv")
+        endpoint = `/tv/${tmdbId}`;
+      else
+        return null;
       let url = `${TMDB_BASE}${endpoint}`;
       const options = { method: "GET", headers: {} };
       if (isV4Key(TMDB_API_KEY)) {
@@ -455,6 +470,8 @@ function getStreams(tmdbId, mediaType, season, episode) {
               title: stream.title,
               url: stream.url,
               quality: stream.quality || "unknown",
+              size: stream.size || null,
+              // <--- New Field
               headers: {}
             }));
           }
@@ -464,8 +481,7 @@ function getStreams(tmdbId, mediaType, season, episode) {
         return [];
       }));
       const resultsArrays = yield Promise.all(promises);
-      const streams = resultsArrays.flat();
-      return streams;
+      return resultsArrays.flat();
     } catch (err) {
       console.error(`[FlixIndia] Critical Error: ${err.message}`);
       return [];

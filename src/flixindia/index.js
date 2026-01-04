@@ -2,7 +2,8 @@ import { search } from './search.js';
 import { resolveHubCloud } from './hubcloud.js';
 import { fetchJson } from './http.js';
 
-// REPLACE THIS with your actual v3 key
+// --- CONFIGURATION ---
+// REPLACE THIS with your actual TMDB v3 API Key
 const TMDB_API_KEY = '919605fd567bbffcf76492a03eb4d527'; 
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 
@@ -21,20 +22,20 @@ function isV4Key(key) {
 
 async function getTmdbTitle(tmdbId, mediaType) {
   try {
-    if (!TMDB_API_KEY) return null;
+    if (!TMDB_API_KEY || TMDB_API_KEY === 'YOUR_TMDB_API_KEY_HERE') {
+        console.error('[FlixIndia] ❌ Missing TMDB API Key');
+        return null;
+    }
 
     let endpoint;
-    if (mediaType === 'movie') {
-      endpoint = `/movie/${tmdbId}`;
-    } else if (mediaType === 'tv') {
-      endpoint = `/tv/${tmdbId}`;
-    } else {
-      return null;
-    }
+    if (mediaType === 'movie') endpoint = `/movie/${tmdbId}`;
+    else if (mediaType === 'tv') endpoint = `/tv/${tmdbId}`;
+    else return null;
 
     let url = `${TMDB_BASE}${endpoint}`;
     const options = { method: 'GET', headers: {} };
 
+    // Correctly handle V3 vs V4 keys
     if (isV4Key(TMDB_API_KEY)) {
       options.headers.Authorization = `Bearer ${TMDB_API_KEY}`;
     } else {
@@ -82,13 +83,12 @@ async function getStreams(tmdbId, mediaType, season, episode) {
     if (!Array.isArray(results)) return [];
 
     /* -------------------------
-     * 4. Resolve hosts (PARALLEL OPTIMIZATION)
+     * 4. Resolve hosts (PARALLEL)
      * ------------------------- */
     
-    // Limit to first 5 results to prevent rate-limiting and timeouts
+    // Limit to first 5 results for speed/safety
     const limitedResults = results.slice(0, 5);
 
-    // Map each result to a Promise
     const promises = limitedResults.map(async (item) => {
       try {
         if (item.host === 'hubcloud') {
@@ -97,28 +97,28 @@ async function getStreams(tmdbId, mediaType, season, episode) {
             quality: item.quality
           });
 
-          // Format streams immediately
+          // Map the results, INCLUDING the new size field
           return resolved.map(stream => ({
             name: 'FlixIndia',
             title: stream.title,
             url: stream.url,
             quality: stream.quality || 'unknown',
+            size: stream.size || null,   // <--- New Field
             headers: {}
           }));
         }
       } catch (err) {
         console.log(`[FlixIndia] Error resolving ${item.url}: ${err.message}`);
       }
-      return []; // Return empty array on failure/skip
+      return [];
     });
 
-    // Wait for ALL resolvers to finish concurrently
+    // Wait for all resolutions to finish
     const resultsArrays = await Promise.all(promises);
 
-    // Flatten the array of arrays into a single list of streams
-    const streams = resultsArrays.flat();
+    // Flatten and return
+    return resultsArrays.flat();
 
-    return streams;
   } catch (err) {
     console.error(`[FlixIndia] Critical Error: ${err.message}`);
     return [];

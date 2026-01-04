@@ -23,6 +23,22 @@ export async function resolveHubCloud(entryUrl, meta) {
   console.log('[HUBCLOUD] Entry HTML length:', entryHtml.length);
 
   const $entry = cheerio.load(entryHtml);
+
+  /* ----------------------------------
+   * STEP 1.5: Extract File Size (NEW)
+   * ---------------------------------- */
+  let fileSize = null;
+  try {
+    // Looks for <i id="size">11.12 GB</i>
+    const sizeText = $entry('i#size').text().trim();
+    if (sizeText) {
+      fileSize = sizeText;
+      console.log(`[HUBCLOUD] 📦 File Size: ${fileSize}`);
+    }
+  } catch (err) {
+    console.log('[HUBCLOUD] ⚠️ Could not extract size:', err.message);
+  }
+
   const generatorUrl = $entry('a#download').attr('href');
 
   if (!generatorUrl) {
@@ -52,6 +68,7 @@ export async function resolveHubCloud(entryUrl, meta) {
       title: meta.title,
       url: fslUrl,
       quality: meta.quality,
+      size: fileSize, // <--- Added Size
       source: 'hubcloud-fsl'
     });
   } else {
@@ -88,6 +105,7 @@ export async function resolveHubCloud(entryUrl, meta) {
           title: meta.title,
           url: resolved,
           quality: meta.quality,
+          size: fileSize, // <--- Added Size
           source: 'hubcloud-pixeldrain'
         });
       }
@@ -115,9 +133,9 @@ export async function resolveHubCloud(entryUrl, meta) {
 /**
  * PixelDrain resolver (TLD-agnostic)
  * Converts:
- *   /u/<id>
- *   /file/<id>
- *   /api/file/<id>
+ * /u/<id>
+ * /file/<id>
+ * /api/file/<id>
  * → /api/file/<id>
  */
 function resolvePixelDrain(url) {
